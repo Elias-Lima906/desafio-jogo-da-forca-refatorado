@@ -12,6 +12,12 @@ import java.util.regex.Pattern;
 
 public class ForcaEliasRefatorada {
 
+      public static final String DESEJA_TENTAR_NOVAMENTE = "\n\t\t\tDeseja Jogar Novamente? S/N : ";
+      public static final String CONTINUAR_OU_SAIR = "\n\t\t\t(1) - Continuar" + "\n\t\t\t(0) - Sair";
+      public static final String OPCAO = "\n\t\t\tOpção: ";
+      public static final String MUITO_OBRIGADO = "\t\t\tMuito Obrigado!";
+      public static final String PULA_UMA_LINHA = "\n";
+
       public static int contarPalavrasArquivo() throws IOException {
 
             LineNumberReader contaLinhas = new LineNumberReader(new FileReader("palavras.txt"));
@@ -71,19 +77,19 @@ public class ForcaEliasRefatorada {
 
       public static void interacaoInicialComUsuario() {
 
-            //Retirei essa interação do mais por questão de estética do código;
+            // Retirei essa interação do mais por questão de estética do código;
             System.out.println("Bem Vindo A Forca Temática de Harry Potter!");
             System.out.println("Apenas Palavras Voltadas Ao Mundo Bruxo!\n");
             System.out.println("Obs: Se digitar mais de uma letra será considerado chute.\n");
       }
 
-      public static void verificaEspacos(char[] verificarLetras, String palavraSorteada) {
+      public static void verificaEspacosNaPalavra(char[] verificaLetrasAcertadas, String palavraSorteada) {
 
-            for (int i = 0; i < verificarLetras.length; i++) {
-                  verificarLetras[i] = 0;
+            for (int i = 0; i < verificaLetrasAcertadas.length; i++) {
+                  verificaLetrasAcertadas[i] = 0;
 
                   if (palavraSorteada.charAt(i) == ' ') {
-                        verificarLetras[i] = 1;
+                        verificaLetrasAcertadas[i] = 1;
                         System.out.print(" ");
                   } else
                         System.out.print(" _ ");
@@ -92,42 +98,99 @@ public class ForcaEliasRefatorada {
 
       public static void statusDeVidasRestantesELetrasUtilizadas(int chances, char[] letrasUtilizadas) {
 
-            //Aqui optei por tirar essa parte do maain pois melhorava a vizualização;
+            // Aqui optei por tirar essa parte do maain pois melhorava a vizualização;
             System.out.printf("\n\n\nVocê tem  %d  vidas: ", chances);
             System.out.println("\nLetras utilizadas: " + new String(letrasUtilizadas));
             System.out.printf("\n\nDigite Uma Letra: \n" + "Ou Digite a Palavra Se Souber: \n");
       }
 
+      public static char[] verificaAcertos(String palavraSorteada, char letra, char[] verificarLetrasAcertadas) {
+
+            for (int j = 0; j < palavraSorteada.length(); j++) {
+                  if (letra == palavraSorteada.charAt(j)) {
+                        verificarLetrasAcertadas[j] = 1;
+                  }
+            }
+
+            return verificarLetrasAcertadas;
+      }
+
+      public static boolean verificaChances(String palavraSorteada, char letra) {
+
+            boolean perderchances = true;
+
+            if (palavraSorteada.contains("" + letra)) {
+                  perderchances = false;
+            }
+            return perderchances;
+      }
+
+      public static boolean mostraLetraAoAcertarEVerificaVitoria(char[] verificaLetrasAcertadas,
+                  boolean verificaVitoria, String palavraSorteada) {
+
+            for (int i = 0; i < palavraSorteada.length(); i++) {
+
+                  if (verificaLetrasAcertadas[i] == 0) {
+                        System.out.print(" _ ");
+                        verificaVitoria = false;
+
+                  } else {
+                        System.out.print(" " + palavraSorteada.charAt(i) + " ");
+                  }
+            }
+            return verificaVitoria;
+      }
+
+      public static void voceGanhou(Scanner teclado) throws IOException {
+
+            // aqui eu criei um metodo que mostra a mensagem de vitoria ao jogador
+            // a fim de diminuir a complexidade do main;
+            System.out.println("\n\t !!!Parabéns Você Ganhou, Você Manja Muito De Harry Potter!!!");
+            System.out.println("\n\tComo Premio Você Pode Adicionar Uma Palavra De Seu Gosto No Jogo!");
+            System.out.print("\tPalavra: ");
+            String palavraPremio = teclado.nextLine();
+            System.out.println("\t" + escreverPalavraAoGanhar(palavraPremio));
+            System.out.println("\n\t\t -> Sinta-se Avontade Para Jogar De Novo! <-");
+      }
+
+      public static void vocePerdeu(String palavraSorteada) {
+
+            // aqui eu optei por seguir o padrao de retirar os textos do main;
+            System.out.printf("\tA palavra era: -> %s <-", palavraSorteada);
+            System.out.println("\n\tInfelizmente Você Perdeu, Mas Não Fique Triste, Jogue De Novo!");
+
+      }
+
       public static void main(String[] args) throws Exception {
 
-            int jogarNovamente;
             Scanner teclado = new Scanner(System.in);
+            int jogarNovamente;
 
             do {
 
-                  interacaoInicialComUsuario();
-
                   String palavraSorteada = buscarPalavraAleatoriaArquivo();
-                  char[] verificarLetras = new char[palavraSorteada.length()];
-
-                  verificaEspacos(verificarLetras, palavraSorteada);
-
+                  char[] verificarLetrasAcertadas = new char[palavraSorteada.length()];
                   int indice = 0;
                   char[] letrasUtilizadas = new char[20];
                   int chances = 6;
                   boolean verificarVitoria = false;
 
-                  do {
+                  // Função nova;
+                  interacaoInicialComUsuario();
 
+                  // Função nova;
+                  verificaEspacosNaPalavra(verificarLetrasAcertadas, palavraSorteada);
+
+                  do {
+                        // Função nova;
                         statusDeVidasRestantesELetrasUtilizadas(chances, letrasUtilizadas);
 
                         System.out.print("\nOpcão: ");
+                        String letraDigitada = teclado.nextLine().toLowerCase();
+                        String letraDigitadaSemAcento = normalizaCaracteresEspeciais(letraDigitada);
 
-                        String opcao = teclado.nextLine().toLowerCase();
-                        String opcaoSemAcento = normalizaCaracteresEspeciais(opcao);
-
-                        if (opcaoSemAcento.length() > 1) {
-                              if (opcaoSemAcento.equals(palavraSorteada)) {
+                        if (letraDigitadaSemAcento.length() > 1) {
+                              if (letraDigitadaSemAcento.equals(palavraSorteada)) {
                                     verificarVitoria = true;
                                     break;
                               } else {
@@ -136,65 +199,60 @@ public class ForcaEliasRefatorada {
                               }
 
                         } else {
-                              char letra = opcaoSemAcento.charAt(0);
+                              char letra = letraDigitadaSemAcento.charAt(0);
 
                               letrasUtilizadas[indice] = letra;
                               indice++;
 
-                              boolean perderchances = true;
-                              for (int j = 0; j < palavraSorteada.length(); j++) {
+                              // aqui eu transformei uma funcao em duas
 
-                                    if (letra == palavraSorteada.charAt(j)) {
-                                          verificarLetras[j] = 1;
-                                          perderchances = false;
-                                    }
-                              }
+                              // essa verifica as letras acertadas ou erradas
+                              // e popula o array de char;
+                              verificarLetrasAcertadas = verificaAcertos(palavraSorteada, letra,
+                                          verificarLetrasAcertadas);
 
-                              if (perderchances) {
+                              // essa verifica se a letra digitada existe na palavra,
+                              // se não, perde vida;
+                              if (verificaChances(palavraSorteada, letra)) {
                                     chances--;
                               }
                         }
 
-                        System.out.println("\n");
+                        System.out.println(PULA_UMA_LINHA);
 
+                        // Função nova;
                         verificarVitoria = true;
-                        for (int i = 0; i < palavraSorteada.length(); i++) {
+                        verificarVitoria = mostraLetraAoAcertarEVerificaVitoria(verificarLetrasAcertadas,
+                                    verificarVitoria, palavraSorteada);
 
-                              if (verificarLetras[i] == 0) {
-                                    System.out.print(" _ ");
-                                    verificarVitoria = false;
-
-                              } else {
-                                    System.out.print(" " + palavraSorteada.charAt(i) + " ");
-                              }
-                        }
-
-                        System.out.println("\n");
+                        System.out.println(PULA_UMA_LINHA);
 
                   } while (!verificarVitoria && chances > 0);
 
                   if (chances != 0) {
-                        System.out.println("\n\t !!!Parabéns Você Ganhou, Você Manja Muito De Harry Potter!!!");
-                        System.out.println("\n\tComo Premio Você Pode Adicionar Uma Palavra De Seu Gosto No Jogo!");
-                        System.out.print("\tPalavra: ");
-                        String palavraPremio = teclado.nextLine();
-                        System.out.println("\t" + escreverPalavraAoGanhar(palavraPremio));
-                        System.out.println("\n\t\t -> Sinta-se Avontade Para Jogar De Novo! <-");
+
+                        // Função nova;
+                        voceGanhou(teclado);
 
                   } else {
-                        System.out.printf("\tA palavra era: -> %s <-", palavraSorteada);
-                        System.out.println("\n\tInfelizmente Você Perdeu, Mas Não Fique Triste, Jogue De Novo!");
+
+                        // Função nova;
+                        vocePerdeu(palavraSorteada);
+
                   }
 
-                  System.out.print("\n\t\t\tDeseja Jogar Novamente? S/N : ");
-                  System.out.println("\n\t\t\t(1) - Continuar" + "\n\t\t\t(0) - Sair");
-                  System.out.print("\n\t\t\tOpção: ");
+                  // optei por usar CONSTANTES aqui pois acredito que é
+                  // compreensível elas estarem aqui em tempo de compreenssão;
+                  System.out.print(DESEJA_TENTAR_NOVAMENTE);
+                  System.out.println(CONTINUAR_OU_SAIR);
+                  System.out.print(OPCAO);
                   jogarNovamente = teclado.nextInt();
 
                   teclado.nextLine();
 
             } while (jogarNovamente == 1 || jogarNovamente != 0);
-            System.out.println("\t\t\tMuito Obrigado!");
+
+            System.out.println(MUITO_OBRIGADO);
 
             teclado.close();
       }
