@@ -8,7 +8,7 @@ Funcões:
 Funções já existentes tiveram o nome trocado
 pra fazer ainda mais sentido sobre o papel delas no código;
 
-Novas Funções foram criadas em prol de dimonuir a quantidade de código no main
+Novas Funções foram criadas em prol de diminuir a quantidade de código no main
 e facilitar a compreensão de quem for analizar o cógido :);
 ------------------------------------------------------------
 Strings:
